@@ -3,8 +3,6 @@ import csv
 from bs4 import BeautifulSoup
 import os
 
-url= 'https://www.amazon.in/s?k=bags&crid=2M096C61O4MLT&qid=1653308124&sprefix=ba%2Caps%2C283&ref=sr_pg_1'
-# Scrape product listing pages
 def scrape_product_listings(url):
     headers = {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3'
@@ -20,8 +18,7 @@ def scrape_product_listings(url):
         # Extract product URL
         link = product.find('a', {'class': 'a-link-normal s-no-outline'})
         if link:
-            product_data['URL'] = url
-
+            product_data['URL'] = 'https://www.amazon.in' + link['href']
 
         # Extract product name
         name = product.find('span', {'class': 'a-size-medium a-color-base a-text-normal'})
@@ -29,26 +26,26 @@ def scrape_product_listings(url):
             product_data['Name'] = name.text.strip()
 
         # Extract product price
-        price = product.find('span', {'class': 'a-offscreen'})
+        price = product.find('span', {'class': 'a-price-whole'})
         if price:
             product_data['Price'] = price.text.strip()
 
         # Extract rating
-        rating = product.find('span', {'class': 'a-icon-alt'})
+        rating = product.find('span', {'class': 'a-icon a-icon-star-small a-star-small-4 aok-align-bottom'})
         if rating:
             product_data['Rating'] = rating.text.split()[0]
 
         # Extract number of reviews
-        reviews = product.find('span', {'class': 'a-size-base'})
+        reviews = product.find('span', {'class': 'a-size-base s-underline-text'})
         if reviews:
             product_data['Reviews'] = reviews.text.strip()
 
         products.append(product_data)
+        print(product_data)
 
     return products
 
 
-# Scrape individual product pages
 def scrape_product_details(url):
     response = requests.get(url)
     soup = BeautifulSoup(response.content, 'html.parser')
@@ -61,7 +58,7 @@ def scrape_product_details(url):
         product_details['Description'] = description.text.strip()
 
     # Extract ASIN
-    asin = soup.find('th', text='ASIN')
+    asin = soup.find('th', string='ASIN')
     if asin:
         product_details['ASIN'] = asin.find_next('td').text.strip()
 
@@ -76,25 +73,26 @@ def scrape_product_details(url):
     if manufacturer:
         product_details['Manufacturer'] = manufacturer.text.strip()
 
+    print(product_details)
     return product_details
 
-
 def export_to_csv(data, filename):
-    keys = data[0].keys()
-    filepath = os.path.join("C:/Users/gandh/Downloads", filename) #edit the filepath according to your desire
-    print("Data to be exported:", data)  # Print data to check its content
-    print("CSV file path:", filepath)  # Print file path to verify it is correct
-    with open(filepath, 'w', newline='', encoding='utf-8') as f: #comment the code here to just print out the scrapped data
-        writer = csv.DictWriter(f, keys)
-        writer.writeheader()
-        writer.writerows(data)
+    fieldnames = ['Product URL', 'Product Name', 'Product Price', 'Rating', 'Number of Reviews']  # Adjust the fieldnames as needed
 
+    with open(filename, 'w', newline='', encoding='utf-8') as csvfile:
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+        writer.writeheader()
+
+        for product in data:
+            # Filter out any fields that are not in fieldnames
+            filtered_product = {key: product.get(key) for key in fieldnames}
+            writer.writerow(filtered_product)
+    print(filtered_product)
 
 
 if __name__ == '__main__':
     base_url = 'https://www.amazon.in/s?k=bags&crid=2M096C61O4MLT&qid=1653308124&sprefix=ba%2Caps%2C283&ref=sr_pg_{}'
     num_pages = 20  # Number of pages
-    #print(os.getcwd())
 
     all_products = []
     for page in range(1, num_pages + 1):
