@@ -81,10 +81,10 @@ def scrape_product_details(url):
 
 def export_to_csv(data, filename):
     keys = data[0].keys()
-    filepath = os.path.join("C:/Users/gandh/Downloads", filename)
+    filepath = os.path.join("C:/Users/gandh/Downloads", filename) #edit the filepath according to your desire
     print("Data to be exported:", data)  # Print data to check its content
     print("CSV file path:", filepath)  # Print file path to verify it is correct
-    with open(filepath, 'w', newline='', encoding='utf-8') as f:
+    with open(filepath, 'w', newline='', encoding='utf-8') as f: #comment the code here to just print out the scrapped data
         writer = csv.DictWriter(f, keys)
         writer.writeheader()
         writer.writerows(data)
