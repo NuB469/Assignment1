@@ -132,5 +132,5 @@ if __name__ == '__main__':
 
     print("Fetching details complete.")
 
-    export_to_csv(scraped_product_details, 'output.csv')
+    export_to_csv(all_products, 'output.csv')
     print("Data exported to CSV file.")
