@@ -1,7 +1,9 @@
 import requests
 import csv
 from bs4 import BeautifulSoup
-import os
+
+
+# import os
 
 def scrape_product_listings(url):
     headers = {
@@ -76,18 +78,35 @@ def scrape_product_details(url):
     print(product_details)
     return product_details
 
+
+def fetch_product_details(product_url):
+    # Code to fetch and extract product details from the provided URL
+    # Implement your logic here to extract the necessary information
+    # Return a dictionary containing the fetched details
+
+    # Example implementation:
+    product_details = {
+        'Product URL': product_url,
+        'Product Name': 'Sample Product Name',
+        'Product Price': 'Sample Price',
+        'Rating': 'Sample Rating',
+        'Number of Reviews': 'Sample Number of Reviews'
+    }
+    return product_details
+
+
 def export_to_csv(data, filename):
-    fieldnames = ['Product URL', 'Product Name', 'Product Price', 'Rating', 'Number of Reviews']  # Adjust the fieldnames as needed
+    fieldnames = ['Product URL', 'Product Name', 'Product Price', 'Rating',
+                  'Number of Reviews']  # Adjust the fieldnames as needed
 
     with open(filename, 'w', newline='', encoding='utf-8') as csvfile:
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
         writer.writeheader()
 
-        for product in data:
-            # Filter out any fields that are not in fieldnames
-            filtered_product = {key: product.get(key) for key in fieldnames}
-            writer.writerow(filtered_product)
-    print(filtered_product)
+        for product_url in data:
+            product_details = fetch_product_details(product_url)
+            writer.writerow(product_details)
+            print(product_details)
 
 
 if __name__ == '__main__':
